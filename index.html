@@ -4,7 +4,175 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>רמת הידע שלי בשוק ההון</title>
-    <link rel="stylesheet" href="css/style.css">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --secondary: #4f46e5;
+            --background: #f8fafc;
+            --text: #1e293b;
+            --danger: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background: var(--background);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+
+        h1 {
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+        }
+
+        .quiz-container {
+            display: none;
+        }
+
+        .quiz-container.active {
+            display: block;
+        }
+
+        .question {
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+
+        .timer {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            background: var(--primary);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: bold;
+        }
+
+        .timer.warning {
+            background: var(--danger);
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .options {
+            display: grid;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .option {
+            padding: 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .option:hover {
+            border-color: var(--primary);
+            background: #f8fafc;
+        }
+
+        .option.selected {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .progress {
+            height: 0.5rem;
+            background: #e2e8f0;
+            border-radius: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--primary);
+            border-radius: 1rem;
+            transition: width 0.3s ease;
+        }
+
+        .quiz-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            font-weight: bold;
+        }
+
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 1.1rem;
+            width: 100%;
+            transition: all 0.3s ease;
+            margin-bottom: 0.5rem;
+        }
+
+        button:hover {
+            background: var(--secondary);
+        }
+
+        .start-screen {
+            text-align: center;
+        }
+
+        .result-screen {
+            display: none;
+            text-align: center;
+        }
+
+        .score {
+            font-size: 4rem;
+            color: var(--primary);
+            margin: 2rem 0;
+            font-weight: bold;
+        }
+
+        .message {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+        }
+
+        .emoji {
+            font-size: 5rem;
+            margin: 1rem 0;
+        }
+
+        .next-level {
+            display: none;
+            background: var(--secondary);
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -37,7 +205,220 @@
             <button class="next-level" onclick="startNextLevel()">עבור לשלב הבא</button>
         </div>
     </div>
-    
-    <script type="module" src="js/quiz.js"></script>
+
+    <script>
+        const allQuestions = [
+            {
+                question: "מהו מדד ת״א 35?",
+                options: [
+                    "מדד המכיל את 35 החברות הגדולות בבורסה הישראלית",
+                    "מדד המכיל את 35 החברות הרווחיות ביותר",
+                    "מדד המכיל את 35 החברות עם הדיבידנד הגבוה ביותר",
+                    "מדד המכיל את 35 החברות הצומחות ביותר"
+                ],
+                correct: 0,
+                level: 1
+            },
+            {
+                question: "מהי קרן נאמנות?",
+                options: [
+                    "השקעה ישירה במניות",
+                    "השקעה משותפת המנוהלת על ידי מנהל מקצועי",
+                    "חשבון חיסכון בבנק",
+                    "הלוואה בנקאית"
+                ],
+                correct: 1,
+                level: 1
+            },
+            // ... הוספת עוד 98 שאלות כאן ...
+            {
+                question: "מהו תיק השקעות מאוזן?",
+                options: [
+                    "תיק המכיל רק מניות",
+                    "תיק המכיל רק אגרות חוב",
+                    "תיק המשלב מספר אפיקי השקעה שונים",
+                    "תיק המכיל רק מטבעות דיגיטליים"
+                ],
+                correct: 2,
+                level: 1
+            },
+            {
+                question: "מהי אסטרטגיית השקעה פאסיבית?",
+                options: [
+                    "מסחר יומי תכוף",
+                    "השקעה במדדים לטווח ארוך",
+                    "השקעה רק במניות דיבידנד",
+                    "השקעה רק באגרות חוב"
+                ],
+                correct: 1,
+                level: 2
+            },
+            {
+                question: "מהו מכפיל הון?",
+                options: [
+                    "היחס בין ההון העצמי למחיר המניה",
+                    "היחס בין הרווח למחיר המניה",
+                    "היחס בין החוב להון העצמי",
+                    "היחס בין הדיבידנד למחיר המניה"
+                ],
+                correct: 0,
+                level: 2
+            }
+        ];
+
+        let currentQuestions = [];
+        let currentQuestion = 0;
+        let score = 0;
+        let selectedAnswer = null;
+        let timer;
+        let timeLeft;
+        let currentLevel = 1;
+
+        function selectQuestionsForLevel(level) {
+            const levelQuestions = allQuestions.filter(q => q.level === level);
+            const shuffled = shuffleArray([...levelQuestions]);
+            return shuffled.slice(0, 10);
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function startQuiz() {
+            document.querySelector('.start-screen').style.display = 'none';
+            document.querySelector('.quiz-container').classList.add('active');
+            currentQuestions = selectQuestionsForLevel(currentLevel);
+            currentQuestion = 0;
+            score = 0;
+            showQuestion();
+        }
+
+        function startTimer() {
+            timeLeft = 30;
+            updateTimer();
+            timer = setInterval(() => {
+                timeLeft--;
+                updateTimer();
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    nextQuestion();
+                }
+            }, 1000);
+        }
+
+        function updateTimer() {
+            const timerElement = document.querySelector('.timer');
+            timerElement.textContent = `${timeLeft} שניות`;
+            if (timeLeft <= 5) {
+                timerElement.classList.add('warning');
+            } else {
+                timerElement.classList.remove('warning');
+            }
+        }
+
+        function showQuestion() {
+            clearInterval(timer);
+            startTimer();
+            
+            selectedAnswer = null;
+            const question = currentQuestions[currentQuestion];
+            document.querySelector('.question').textContent = question.question;
+            document.querySelector('.question-number').textContent = `שאלה ${currentQuestion + 1} מתוך 10`;
+            
+            const optionsContainer = document.querySelector('.options');
+            optionsContainer.innerHTML = '';
+            
+            question.options.forEach((option, index) => {
+                const button = document.createElement('div');
+                button.className = 'option';
+                button.textContent = option;
+                button.onclick = () => selectOption(index);
+                optionsContainer.appendChild(button);
+            });
+
+            updateProgress();
+        }
+
+        function selectOption(index) {
+            const options = document.querySelectorAll('.option');
+            options.forEach(option => option.classList.remove('selected'));
+            options[index].classList.add('selected');
+            selectedAnswer = index;
+        }
+
+        function nextQuestion() {
+            clearInterval(timer);
+
+            if (selectedAnswer !== null && selectedAnswer === currentQuestions[currentQuestion].correct) {
+                score++;
+            }
+
+            currentQuestion++;
+
+            if (currentQuestion >= currentQuestions.length) {
+                showResults();
+            } else {
+                showQuestion();
+            }
+        }
+
+        function updateProgress() {
+            const progress = (currentQuestion / currentQuestions.length) * 100;
+            document.querySelector('.progress-bar').style.width = `${progress}%`;
+        }
+
+        function getEmoji(percentage) {
+            if (percentage >= 90) return '🏆';
+            if (percentage >= 80) return '🌟';
+            if (percentage >= 70) return '😊';
+            if (percentage >= 50) return '🤔';
+            return '😢';
+        }
+
+        function showResults() {
+            document.querySelector('.quiz-container').classList.remove('active');
+            document.querySelector('.result-screen').style.display = 'block';
+            
+            const percentage = (score / currentQuestions.length) * 100;
+            document.querySelector('.score').textContent = `${percentage}%`;
+            document.querySelector('.emoji').textContent = getEmoji(percentage);
+            
+            let message = '';
+            if (percentage >= 90) {
+                message = 'מצוין! יש לך ידע מעמיק בשוק ההון';
+            } else if (percentage >= 70) {
+                message = 'טוב מאוד! יש לך הבנה טובה בשוק ההון';
+            } else if (percentage >= 50) {
+                message = 'יש לך ידע בסיסי בשוק ההון. כדאי להמשיך ללמוד';
+            } else {
+                message = 'מומלץ ללמוד יותר על שוק ההון לפני שמתחילים להשקיע';
+            }
+            
+            document.querySelector('.message').textContent = message;
+            
+            // Show next level button if score is over 70%
+            const nextLevelBtn = document.querySelector('.next-level');
+            if (percentage >= 70) {
+                nextLevelBtn.style.display = 'block';
+            } else {
+                nextLevelBtn.style.display = 'none';
+            }
+        }
+
+        function startNextLevel() {
+            currentLevel++;
+            document.querySelector('.result-screen').style.display = 'none';
+            startQuiz();
+        }
+
+        function restartQuiz() {
+            document.querySelector('.result-screen').style.display = 'none';
+            startQuiz();
+        }
+    </script>
 </body>
 </html>
