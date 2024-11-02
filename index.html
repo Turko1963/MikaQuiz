@@ -5,14 +5,350 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>רמת הידע שלי בשוק ההון</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <!-- שאר ה-CSS נשאר אותו דבר... -->
+    <style>
+        :root {
+            --primary: #6366f1;
+            --secondary: #4f46e5;
+            --background: #f8fafc;
+            --text: #1e293b;
+            --danger: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background: var(--background);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+
+        h1 {
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+        }
+
+        .quiz-container {
+            display: none;
+            position: relative;
+        }
+
+        .quiz-container.active {
+            display: block;
+        }
+
+        .question {
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+
+        .timer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            background: var(--primary);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: bold;
+        }
+
+        .timer.warning {
+            background: var(--danger);
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .options {
+            display: grid;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .option {
+            padding: 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .option:hover {
+            border-color: var(--primary);
+            background: #f8fafc;
+        }
+
+        .option.selected {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .progress {
+            height: 0.5rem;
+            background: #e2e8f0;
+            border-radius: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--primary);
+            border-radius: 1rem;
+            transition: width 0.3s ease;
+        }
+
+        .quiz-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            font-weight: bold;
+        }
+
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 1.1rem;
+            width: 100%;
+            transition: all 0.3s ease;
+            margin-bottom: 0.5rem;
+        }
+
+        button:hover {
+            background: var(--secondary);
+        }
+
+        .start-screen {
+            text-align: center;
+        }
+
+        .result-screen {
+            display: none;
+            text-align: center;
+        }
+
+        .score {
+            font-size: 4rem;
+            color: var(--primary);
+            margin: 2rem 0;
+            font-weight: bold;
+        }
+
+        .message {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+        }
+
+        .emoji {
+            font-size: 5rem;
+            margin: 1rem 0;
+        }
+
+        .next-level {
+            display: none;
+            background: var(--secondary);
+        }
+
+        .whatsapp-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background-color: #25D366;
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            font-weight: bold;
+            margin-top: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .whatsapp-button:hover {
+            background-color: #128C7E;
+            transform: translateY(-2px);
+        }
+
+        .whatsapp-button i {
+            font-size: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .whatsapp-button {
+                padding: 0.8rem 1.5rem;
+            }
+            
+            .whatsapp-button i {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
 </head>
 <body>
-    <!-- שאר ה-HTML נשאר אותו דבר... -->
+    <div class="container">
+        <div class="start-screen">
+            <h1>רמת הידע שלי בשוק ההון</h1>
+            <p style="margin-bottom: 2rem;">בחן את עצמך ב-10 שאלות על שוק ההון</p>
+            <p style="margin-bottom: 1rem;">יש לך 30 שניות לענות על כל שאלה</p>
+            <button id="start-button">התחל</button>
+        </div>
+
+        <div class="quiz-container">
+            <div class="quiz-info">
+                <span class="question-number"></span>
+                <span class="timer"></span>
+            </div>
+            <div class="progress">
+                <div class="progress-bar"></div>
+            </div>
+            <div class="question"></div>
+            <div class="options"></div>
+            <button id="next-button">המשך</button>
+        </div>
+
+        <div class="result-screen">
+            <h1>התוצאה שלך</h1>
+            <div class="emoji"></div>
+            <div class="score"></div>
+            <div class="message"></div>
+            <button id="restart-button">נסה שוב</button>
+            <button class="next-level">עבור לשלב הבא</button>
+        </div>
+
+        <a href="https://wa.me/972549669657" class="whatsapp-button" target="_blank">
+            <i class="fab fa-whatsapp"></i>
+            בא לי צ'אט עם מיקה פיננסים
+        </a>
+    </div>
 
     <script>
         const allQuestions = [
-            // ... כל השאלות נשארות אותו דבר ...
+            {
+                question: "מהו מדד ת״א 35?",
+                options: [
+                    "מדד המכיל את 35 החברות הגדולות בבורסה הישראלית",
+                    "מדד המכיל את 35 החברות הרווחיות ביותר",
+                    "מדד המכיל את 35 החברות עם הדיבידנד הגבוה ביותר",
+                    "מדד המכיל את 35 החברות הצומחות ביותר"
+                ],
+                correct: 0
+            },
+            {
+                question: "מהי קרן נאמנות?",
+                options: [
+                    "השקעה ישירה במניות",
+                    "השקעה משותפת המנוהלת על ידי מנהל מקצועי",
+                    "חשבון חיסכון בבנק",
+                    "הלוואה בנקאית"
+                ],
+                correct: 1
+            },
+            {
+                question: "מהו דיבידנד?",
+                options: [
+                    "סוג של אגרת חוב",
+                    "עמלת קנייה ומכירה",
+                    "חלוקת רווחים לבעלי המניות",
+                    "הנפקת מניות חדשה"
+                ],
+                correct: 2
+            },
+            {
+                question: "מהי אסטרטגיית Buy and Hold?",
+                options: [
+                    "קנייה ומכירה תכופה של מניות",
+                    "קניית מניות והחזקתן לטווח ארוך",
+                    "השקעה רק במניות דיבידנד",
+                    "השקעה בקרנות נאמנות בלבד"
+                ],
+                correct: 1
+            },
+            {
+                question: "מהו מסחר בחסר (Short)?",
+                options: [
+                    "מכירת נכס שאין ברשותך",
+                    "קניית מניות לטווח קצר",
+                    "השקעה בחברות קטנות",
+                    "מסחר בשעות מוקדמות"
+                ],
+                correct: 0
+            },
+            {
+                question: "מהו P/E?",
+                options: [
+                    "יחס בין מחיר המניה לרווח למניה",
+                    "יחס בין נכסים להתחייבויות",
+                    "אחוז הצמיחה השנתי",
+                    "שווי שוק החברה"
+                ],
+                correct: 0
+            },
+            {
+                question: "מהי ריבית דריבית?",
+                options: [
+                    "ריבית על ההלוואה הראשונית",
+                    "ריבית על הריבית שהצטברה",
+                    "ריבית קבועה",
+                    "ריבית משתנה"
+                ],
+                correct: 1
+            },
+            {
+                question: "מהו ETF?",
+                options: [
+                    "קרן נאמנות סגורה",
+                    "קרן המשקיעה רק במניות",
+                    "קרן סל הנסחרת בבורסה",
+                    "קרן גידור"
+                ],
+                correct: 2
+            },
+            {
+                question: "מהו פיזור השקעות?",
+                options: [
+                    "השקעה במניה אחת בלבד",
+                    "השקעה במספר נכסים שונים להקטנת הסיכון",
+                    "השקעה רק באגרות חוב",
+                    "השקעה בשוק ההון בלבד"
+                ],
+                correct: 1
+            },
+            {
+                question: "מהי נזילות?",
+                options: [
+                    "היכולת למכור נכס במהירות ללא פגיעה במחיר",
+                    "כמות הכסף בחשבון הבנק",
+                    "רווח מהשקעה",
+                    "הפסד מהשקעה"
+                ],
+                correct: 0
+            }
         ];
 
         let currentQuestions = [];
@@ -21,6 +357,14 @@
         let selectedAnswer = null;
         let timer;
         let timeLeft;
+
+        // מוסיף את Event Listeners כשהדף נטען
+        document.addEventListener('DOMContentLoaded', function() {
+            // מוסיף Event Listeners לכפתורים
+            document.getElementById('start-button').addEventListener('click', startQuiz);
+            document.getElementById('next-button').addEventListener('click', nextQuestion);
+            document.getElementById('restart-button').addEventListener('click', restartQuiz);
+        });
 
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
